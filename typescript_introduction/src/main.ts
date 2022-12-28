@@ -1,9 +1,9 @@
 import './style.css'
 import { setupCounter } from './counter'
 import { pokemon } from './bases/objects'
-import { Charmander } from './bases/injection';
+import { CharmanderDecorator } from './bases/decorator';
 
-console.log(Charmander.getMoves());
+console.log(CharmanderDecorator.speak());
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
