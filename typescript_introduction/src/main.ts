@@ -1,7 +1,7 @@
 import './style.css'
 import { setupCounter } from './counter'
 import { pokemon } from './bases/objects'
-import { Charmander } from './bases/classes'
+import { Charmander } from './bases/injection';
 
 console.log(Charmander.getMoves());
 
