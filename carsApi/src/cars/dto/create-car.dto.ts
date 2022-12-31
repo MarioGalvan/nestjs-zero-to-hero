@@ -1,5 +1,12 @@
-export class CreateCarDto {
-  readonly brand: string;
+import { IsString,IsNumber } from 'class-validator';
+import { ValidatorField } from 'src/common/validator-string';
 
-  readonly model: string;
+export class CreateCarDto {
+  @IsString({
+    message: ValidatorField('marca', 'string'),
+  })
+  
+  readonly marca: string;
+  @IsNumber()
+  readonly model: number;
 }

@@ -1,30 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 import { CarModel } from './interfaces/car.interface';
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
+import { CreateCarDto, UpdateCarDto } from './dto';
 
 @Injectable()
 export class CarsService {
-  private cars:CarModel[] = [
+  private cars: CarModel[] = [
     {
       id: uuid(),
       marca: 'Ford',
-      model:2021
+      model: 2021,
     },
     {
       id: uuid(),
       marca: 'Chevy',
-      model:2020
+      model: 2020,
     },
     {
       id: uuid(),
       marca: 'Toyota',
-      model:2019
+      model: 2019,
     },
     {
       id: uuid(),
       marca: 'Honda',
-      model:2018
+      model: 2018,
     },
   ];
 
@@ -38,7 +39,40 @@ export class CarsService {
     return car;
   }
 
-  addNewCar(data:any) {
-   return data;
+  addNewCar(data: CreateCarDto) {
+    const car: CarModel = {
+      id: uuid(),
+      ...data,
+    };
+    this.cars.push(car);
+    return {
+      message: 'Creado Exitosamente',
+      car,
+    };
+  }
+
+  updateCar(id: string, data: UpdateCarDto) {
+    let cardDb = this.findOneById(id);
+    this.cars = this.cars.map((car) => {
+      if (car.id === id) {
+        cardDb = {
+          ...cardDb,
+          ...data,
+          id,
+        };
+        return cardDb;
+      }
+      return car;
+    });
+
+    return cardDb;
+  }
+
+  deleteCar(id: string) {
+    let cardDb = this.findOneById(id);
+    this.cars = this.cars.filter((car) => car.id !== cardDb.id);
+    return {
+      message:'Eliminado correctamente'
+    }
   }
 }
