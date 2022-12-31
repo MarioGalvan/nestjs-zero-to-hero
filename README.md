@@ -10,3 +10,9 @@
 * Websockets
 * Postgres
 * jwt
+
+
+# Populate DB
+```
+http://localhost:300/seed
+```
