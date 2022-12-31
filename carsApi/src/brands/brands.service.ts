@@ -7,13 +7,7 @@ import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class BrandsService {
-  public brands: Brand[] = [
-    {
-      id: uuid(),
-      name: 'Toyota',
-      createAt: new Date().getTime(),
-    },
-  ];
+  public brands: Brand[] = [];
 
   create(createBrandDto: CreateBrandDto) {
     const brand: Brand = {
@@ -45,7 +39,7 @@ export class BrandsService {
       if (brand.id === id) {
         brandSearch.updateAt = new Date().getTime();
         brandSearch = { ...brandSearch, ...updateBrandDto, id };
-        return brandSearch
+        return brandSearch;
       }
       return brand;
     });
@@ -57,5 +51,9 @@ export class BrandsService {
     return {
       message: 'Eliminado correctamente',
     };
+  }
+
+  fillBrandsithSeedData(brands: Brand[]) {
+    this.brands = brands;
   }
 }
