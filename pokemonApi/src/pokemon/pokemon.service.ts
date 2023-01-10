@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common/enums';
 import {
-  BadRequestException,
   HttpException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common/exceptions';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { Pokemon } from './entities/pokemon.entity';
@@ -25,8 +25,9 @@ export class PokemonService {
       return pokemon;
     } catch (error) {
       if (error.code === 11000) {
-        throw new BadRequestException(
-          `Pokemon exist in DB ${JSON.stringify(error.keyValue)} `,
+        throw new HttpException(
+          `Pokemon Existe en base de datos ${JSON.stringify(error.keyValue)}`,
+          HttpStatus.BAD_REQUEST,
         );
       }
       throw new InternalServerErrorException('Algo salio mal');
@@ -37,12 +38,52 @@ export class PokemonService {
     return `This action returns all pokemon`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pokemon`;
+  async findOne(FieldSearch: string) {
+    let pokemon: any;
+
+    if (!isNaN(+FieldSearch)) {
+      pokemon = await this.pokemonModel.findOne({
+        pokemonNumber: FieldSearch,
+      });
+    }
+
+    if (!pokemon && isValidObjectId(FieldSearch)) {
+      pokemon = await this.pokemonModel.findById(FieldSearch);
+    }
+
+    if (!pokemon) {
+      pokemon = await this.pokemonModel.findOne({
+        name: FieldSearch.toLocaleLowerCase().trim(),
+      });
+    }
+
+    if (!pokemon) {
+      throw new NotFoundException(
+        `Pokemon with id, name or pokemonNumber ${FieldSearch} not found`,
+      );
+    }
+
+    return pokemon;
   }
 
-  update(id: number, updatePokemonDto: UpdatePokemonDto) {
-    return `This action updates a #${id} pokemon`;
+  async update(term: string, updatePokemonDto: UpdatePokemonDto) {
+    let pokemon = await this.findOne(term);
+    if (updatePokemonDto.name) {
+      updatePokemonDto.name = updatePokemonDto.name.toLocaleLowerCase().trim();
+    }
+
+    try {
+      await pokemon.updateOne(updatePokemonDto, { new: true });
+    } catch (error) {
+      throw new HttpException(
+        `Pokemon exist in DB ${JSON.stringify(error.keyValue)}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return {
+      ...pokemon.toJSON(),
+      ...updatePokemonDto,
+    };
   }
 
   remove(id: number) {
